@@ -57,10 +57,6 @@ classifierPath      ="./classifier.pickle"
 
 
 
-
-
-
-
 from keras.models import load_model
 # load the model
 model = load_model(kerasPath,compile=False)
@@ -114,14 +110,11 @@ cap = cv2.VideoCapture(0)
 while(True):
     ret,frame = cap.read()
     
-    #frame = cv2.imread(random)
+    
     
     frame = cv2.cvtColor( frame , cv2.COLOR_BGR2RGB )
     
-    #function to detect faces in image
-    #it should return value in faces 
-    #faces is list
-    #faces = face_cascade.detectMultiScale( gray , scaleFactor=1.5 , minNeighbors  = 5)
+    
     
     face_array,x1_frame,y1_frame,x2_frame,y2_frame = charanfunctions.try_extract_face_webcam(frame)
     
@@ -144,47 +137,7 @@ while(True):
         #dram rectangle
         cv2.rectangle(frame , (x1_frame[face],y1_frame[face]) ,(x2_frame[face],y2_frame[face]),color,stroke)
     
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-#    predict,x1,y1,x2,y2 = charanfunctions.performTestcharan(model,traincharan,train_labels,frame,classifier)
-    
-    
-    
-#    if (len(predict)) == 0:
-#        print("No face found")
-#        continue
-    
-  
-#    print(predict)
-        
-    
-    #color of rectangle shown in display
-#    color =  (0 , 0, 255)
-    #width of rectangle shown in display
-#    stroke = 5
-    #dram rectangle
-#    cv2.rectangle(frame , (x1,y1) ,(x2,y2),color,stroke)
-        
-        
-        
-        
-    
-    
+   
     
     
     cv2.imshow('frame',frame)

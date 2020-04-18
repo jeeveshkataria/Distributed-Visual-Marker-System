@@ -10,7 +10,7 @@ Created on Sat Apr 18 11:59:29 2020
 '''
 Download : pip intall getkey
 '''
-
+from  camera import Webcam
 import mysql.connector
 from course_reg import Course_Reg
 from mysql.connector import Error
@@ -58,36 +58,15 @@ class  StudentRegistration:
             print("press y/Y once you are ready")
             key = getkey()
             if key == 'y' or key == 'Y':
-                frame = self.takeStudentPhoto()
-            # do augmentation 
-            #svae it 
+                frame = camera.takeStudentPhoto()
+                #frame = self.takeStudentPhoto()
                 self.createAugmentationAndSave(frame,rollNumber)
                 #self.saveImages(frame,rollNumber)
         studentDict={}
         studentDict={'name':fullName,'facial_features':b'89'}
         return studentDict 
         
-        
-        
-    def takeStudentPhoto(self):
-        frame = None
-        cap = cv2.VideoCapture(0) # video capture source camera (Here webcam of laptop) 
-        ret,frame = cap.read() # return a single frame in variable `frame`
-        
-        while(True):
-            cv2.imshow('img1',frame) #display the captured image
-            if cv2.waitKey(1) & 0xFF == ord('y'): #save on pressing 'y' 
-                print("photo save successfully")
-                cv2.destroyAllWindows()
-                break
-            
-        #do augmentation
-        
-        return frame
-        
-        
-        
-        
+       
         
     def createAugmentationAndSave(self,image,rollNumber):
         directory = str(rollNumber)
@@ -127,6 +106,7 @@ class  StudentRegistration:
     
 print("Registration Started")
 student = Student()
+camera = Webcam()
 
 print("press q , for closing the Registration")
 while(True):
@@ -149,5 +129,6 @@ print("Registration Completed")
 '''
 Following class : StudentRegistration deals with Registration of student at the time of admission.
 takeStudentDetails  :  It take student details as input, if details are ok it calls to capture image of student
-takeStudentPhoto   : it captures the student present in front of camera
+takeStudentPhoto   : it captures the student present in front of camera, this module present in camera.py
+createAugmentationAndSave : it replicate different version of images and save in the path which is provided
 '''
