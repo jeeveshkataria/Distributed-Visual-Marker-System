@@ -38,7 +38,11 @@ class  StudentRegistration:
         
     def takeStudentDetails(self,rollNumber):
     
-        firstName = input("Enter student First Name : ") 
+        firstName = input("Enter student First Name : or q to exit Registration " )
+        if firstName == 'q':
+            print("Registration Completed")
+            exit()
+            
         lastName =  input("Enter student Last Name : ")
         fullName = firstName + " " + lastName
         
@@ -51,7 +55,7 @@ class  StudentRegistration:
             return -1
         if key == 'c' or key =='C':
             print("We need to capture your image")
-            print("press y/Y once you ready")
+            print("press y/Y once you are ready")
             key = getkey()
             if key == 'y' or key == 'Y':
                 frame = self.takeStudentPhoto()
@@ -59,9 +63,9 @@ class  StudentRegistration:
             #svae it 
                 self.createAugmentationAndSave(frame,rollNumber)
                 #self.saveImages(frame,rollNumber)
-        mydict={}
-        mydict={'name':fullName,'facial_features':b'89'}
-        return mydict 
+        studentDict={}
+        studentDict={'name':fullName,'facial_features':b'89'}
+        return studentDict 
         
         
         
@@ -104,25 +108,18 @@ class  StudentRegistration:
         image = img_to_array(image)  # this is a Numpy array with shape (3, 150, 150)
         x = image
         x = x.reshape((1,) + x.shape)  # this is a Numpy array with shape (1, 3, 150, 150)
-        i = 0
+        photoCount = 0
         for batch in datagen.flow(x, batch_size=1,
-                              save_to_dir=folder_location, save_prefix='cat', save_format='jpeg'):
-            i += 1
-            if i > 9:
+                              save_to_dir=folder_location, save_prefix=rollNumber, save_format='jpeg'):
+            photoCount += 1
+            if photoCount > 9:
                 break  # otherwise the generator would loop indefinitely
 
         
         return
     
     
-    def takeCourseDetails(self,RollNumber):
-        infodict={}
-        course_id = input("Enter Course Id:")
-        Semester_type = input("Semester_type")
-        Semester_year = input("Enter Semester year")
-        infodict={'course_id':course_id,'roll_number':RollNumber,'Semester_type':Semester_type,'Semester_year':Semester_year}
-        return infodict
-
+   
 #ss=Course_Reg(infodict)
 #ss.register_course()
     
@@ -135,12 +132,22 @@ print("press q , for closing the Registration")
 while(True):
     
     studReg = StudentRegistration()
-    RollNumber=student.getNextRollNumber()
-    mydict  = studReg.takeStudentDetails(RollNumber)
-    ss=Student(mydict)
-    ss.createStudent()
+    nextRollNumber=student.getNextRollNumber()
+    dataDict  = studReg.takeStudentDetails(nextRollNumber)
+    sObject=Student(dataDict)
+    sObject.createStudent()
     
     if 0xFF == ord('q'):
         exit()
     
 print("Registration Completed")
+
+
+
+
+
+'''
+Following class : StudentRegistration deals with Registration of student at the time of admission.
+takeStudentDetails  :  It take student details as input, if details are ok it calls to capture image of student
+takeStudentPhoto   : it captures the student present in front of camera
+'''
