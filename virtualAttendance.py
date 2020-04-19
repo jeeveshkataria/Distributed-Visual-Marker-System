@@ -49,20 +49,21 @@ import pickle
 
 
 class virtualAttendance:
-    Model               =   None
-    kerasPath           =   "./facenet_keras.h5"
-    trainPath           =   "./train.pickle"
-    testPath            =   "./test.pickle"
-    trainLabelPath      =   "./train_labels.pickle"
-    testLabelPath       =   "./test_labels.pickle"
-    classifierPath      =    "./classifier.pickle"
-    traincharan         =    None
-    testcharan          =    None
-    train_labels        =    None
-    traincharan         =    None
-    test_labels         =    None
-    classifier          =    None
-    studentID={}
+    def __init__(self):
+        self.Model               =   None
+        self.kerasPath           =   "./facenet_keras.h5"
+        self.trainPath           =   "./train.pickle"
+        self.testPath            =   "./test.pickle"
+        self.trainLabelPath      =   "./train_labels.pickle"
+        self.testLabelPath       =   "./test_labels.pickle"
+        self.classifierPath      =    "./classifier.pickle"
+        self.traincharan         =    None
+        self.testcharan          =    None
+        self.train_labels        =    None
+        self.traincharan         =    None
+        self.test_labels         =    None
+        self.classifier          =    None
+        self.studentID={}
     
     
     
@@ -81,10 +82,7 @@ class virtualAttendance:
                 #else
                     #print("invalid TA credentials")
                     #return 0
-            
-            #else:
-                #print("invalid course id")
-                #return 0
+          
 
                 
     
