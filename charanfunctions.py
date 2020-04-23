@@ -188,6 +188,8 @@ def try_extract_face_webcam(image, required_size=(160, 160)):
         y1_frame.append(y1)
         x2_frame.append(x2)
         y2_frame.append(y2)
+        print("len",len(face_array))
+       
     return face_array,x1_frame,y1_frame,x2_frame,y2_frame
 
 
