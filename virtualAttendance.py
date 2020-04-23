@@ -22,6 +22,7 @@ step 11 : mark attendance of that student
 import sys
 from termcolor import colored,cprint
 
+
 import charanfunctions
 # charan functions is an other python file,which is imported here
 
@@ -46,10 +47,18 @@ from numpy import asarray
 from numpy import savez_compressed
 from keras.models import load_model
 import pickle
+import mysql.connector
+from mysql.connector import Error
+from DBService import MyDatabase
+from CourseLoginLayer import CourseAuthenticator
+from AttendanceLayer import Attendance
+from StudentLayer import Student
+from course_reg import Course_Reg
+import datetime
 
 
 class virtualAttendance:
-    def __init__(self):
+    def __init__(self,classRoom):
         self.Model               =   None
         self.kerasPath           =   "./facenet_keras.h5"
         self.trainPath           =   "./train.pickle"
@@ -63,68 +72,54 @@ class virtualAttendance:
         self.traincharan         =    None
         self.test_labels         =    None
         self.classifier          =    None
-        self.studentID={}
+        self.studentID=set()
+        self.class_room = classRoom
     
     
-    
-    def verifyCourseIDandPassKey(self,courseID,PassKey):
-        #check if courseID is in database course 
-        #if(courseId is inside database)
-        
-                
-        
-               #load pass key
-               
-                #now take compare pass key
-                #if(pass key match):
-                    #return 1
-                
-                #else
-                    #print("invalid TA credentials")
-                    #return 0
-          
-
-                
-    
-        #else:
-        #print("invalid course id")
-        return 0
-        
+    def verifyCourseIDandPassKey(self,courseID,PassKey):        
+        return CourseAuthenticator().verifyAuth(courseID,PassKey)    
     
     def loadStudent(self,courseID):
-        #load each studentID from database 
-        #corresponding to that courseID
-        #inside map [self.studentID] declared inside class
+        now = datetime.datetime.now()
+        Course_dict = {}
+        Course_dict['Semester_year'] = now.year
+        if (now.month<=6):
+            Course_dict['Semester_type'] = 'Spring' 
+        else:
+            Course_dict['Semester_type'] = 'Monsoon'
+        Course_dict['course_id'] = courseID
+        self.studentID = set(Course_Reg().get_rollnumber(Course_dict))
+        if(len(self.studentID)>0):
+            return True
+        else:
+            return False
+    
+    def markAttendance(self,predicts,courseID):
+        print("predicts",predicts)
+        print(type(predicts))
+        for predict in predicts:
+            print("predict",type(predict),predict)
+            predict = int(predict)
+            if(predict in self.studentID):
+                info_dict = {}
+                info_dict['course_id'] = courseID
+                info_dict['roll_number'] = predict
+                info_dict['full_name'] = Student().getFullName(predict)
+                now = datetime.datetime.now()
+                info_dict['semester_year'] = now.year
+                if (now.month<=6):
+                    info_dict['semester_type'] = 'Spring'
+                else:
+                    info_dict['semester_type'] = 'Monsoon'
+                info_dict['class_room'] = self.class_room
+                Attendance_Obj = Attendance(info_dict)
+                Attendance_Obj.markAttendance() 
+                            
+            else:
+                print("Student not recognised")
         
-        #return studentID
-        #we should return a dictionary which is having all 
-        #students of that class
-        
-        return 0
     
-    
-    
-    
-    def markAttendance(self,predict):
-        for student in predict:
-            #check is student present in [StudentID] map or not
-            #if present
-            #load table 
-            #mark present in that student
-            
-            
-            
-            #else
-            #print("student not recognised")
-        return 0
-    
-    
-    
-    
-    
-    
-    
-    def startAttendance(self,courseID,taID):
+    def startAttendance(self,courseID):
         cap = cv2.VideoCapture(0)
         while(True):
             ret,frame = cap.read()
@@ -134,25 +129,26 @@ class virtualAttendance:
             if len(face_array) == 0:
                 print("No face Detected")
                 continue
-            for face in range(len(face_array)):
-                predict = charanfunctions.try_performTestcharan(self.model,self.traincharan,face_array[face],self.classifier)
-                
-                if (len(predict)) == 0:
-                    print(" face Not Recognized")
-                    continue
-                
-                
-                
-                self.markAttendance(predict)
-                
-                print(predict)
-                color =  (0 , 0, 255)
-                stroke = 5
-                cv2.rectangle(frame , (x1_frame[face],y1_frame[face]) ,(x2_frame[face],y2_frame[face]),color,stroke)
-    
-            cv2.imshow('frame',frame)
-            if cv2.waitKey(20) & 0xFF == ord('q'):
-                break
+            else:
+                for face in range(len(face_array)):
+                    predict = charanfunctions.try_performTestcharan(self.model,self.traincharan,face_array[face],self.classifier)
+                    
+                    if(len(predict)) == 0:
+                        print(" face Not Recognized")
+                        continue
+                    
+                    self.markAttendance(predict,courseID)
+
+                    #self.markAttendance(63,courseID)
+                    
+                    print(predict)
+                    color =  (0 , 0, 255)
+                    stroke = 5
+                    cv2.rectangle(frame , (x1_frame[face],y1_frame[face]) ,(x2_frame[face],y2_frame[face]),color,stroke)
+        
+                cv2.imshow('frame',frame)
+                if cv2.waitKey(20) & 0xFF == ord('q'):
+                    break
 
         cap.release()
         cv2.destroyAllWindows()
@@ -182,52 +178,36 @@ class virtualAttendance:
             self.classifier = pickle.load(f)
         print("classifier loaded")
 
-        
-        
+        return True
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+        
 cprint("Attendance System Initiated", 'green', attrs=['reverse', 'bold'])
 courseID   =    input("Enter Course ID : ")
 PassKey       =    input("Enter pass key for user : ") 
-virtualAtt  =    virtualAttendance()
+virtualAtt  =    virtualAttendance(input("Enter Class room : "))
 
-if ( virtualAtt.verifyCourseIDandPassKey(courseID,PassKey) ):
+if (virtualAtt.verifyCourseIDandPassKey(courseID,PassKey)):
     
-    if ( virtualAtt.loadStudent(courseID) ):
+    if (virtualAtt.loadStudent(courseID)):
         
-        if( virtualAtt.loadModule() ):
+        if(virtualAtt.loadModule()):
             
-            if ( virtualAtt.startAttendance() ):
-                print("Attendance Completed")
-                exit()
-            else:
-                cprint("Some Internal Error occurs with the module,please re-start again" ,'red', attrs=['reverse', 'bold'])
-                exit()
-                
-        
-        
-        
+            virtualAtt.startAttendance(courseID)
+            # if (virtualAtt.startAttendance()):
+            #     print("Attendance Completed")
+            #     exit()
+            # else:
+            #     cprint("Some Internal Error occurs with the module,please re-start again" ,'red', attrs=['reverse', 'bold'])
+            #     exit()
+                        
         else:
             cprint("Some Internal Error occurs with the module,please re-start again" ,'red', attrs=['reverse', 'bold'])
             exit()
-        
         
     else:
         cprint("Problem In Loading Student,Contact DataBase Administrator", 'red', attrs=['reverse', 'blink'])
         exit()
         
-    
 else:
     cprint("Input Values is not valid,Start the Module again", 'red', attrs=['reverse', 'blink'])
     exit()
