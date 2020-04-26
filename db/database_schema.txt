@@ -43,5 +43,5 @@ create table course_credentials(
 create table drowsy_data(
 course_id varchar(10) references courses(course_id),
 roll_number int references students(roll_number),
-date_of_class date
-)ENGINE=InnoDB;
+date_of_class date,
+primary key (course_id,roll_number,date_of_class))ENGINE=InnoDB;
