@@ -1,8 +1,8 @@
 import mysql.connector
 from mysql.connector import Error
-from DBService import MyDatabase
+from db.DBService import MyDatabase
 from datetime import datetime
-from SleepLogger import DrowsyDetector
+from db.SleepLogger import DrowsyDetector
 
 class Attendance:
     
