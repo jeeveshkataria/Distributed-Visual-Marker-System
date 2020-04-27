@@ -1,17 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-
-@author: aniruddha
-
-"""
 import sys
 from termcolor import colored,cprint
 
 import stdiomask
 import functions
-#  functions is an other python file,which is imported here
-
 import numpy as np
 import cv2
 from PIL import Image
@@ -40,6 +31,7 @@ from db.CourseLoginLayer import CourseAuthenticator
 from db.AttendanceLayer import Attendance
 from db.StudentLayer import Student
 from db.course_reg import Course_Reg
+from db.SleepLogger import DrowsyDetector
 import datetime
 from scipy.spatial import distance
 from imutils import face_utils
@@ -136,11 +128,11 @@ class detectDrowsiness:
 			key = cv2.waitKey(1) & 0xFF
 			if key == ord("q"):
 				break
-		print(self.sleeping_students)
+		cprint("CLASS HAS ENDED", 'green', attrs=['reverse', 'bold'])
+		DrowsyDetector().markStudentSleepy(list(map(int, self.sleeping_students.tolist())), courseID)
 		cv2.destroyAllWindows()
 		cap.stop()
 		#print(self.sleeping_students)
-
 
 	def retrieveRollNumber(self,frame,courseID):
 		frame = cv2.cvtColor( frame , cv2.COLOR_BGR2RGB )
@@ -152,12 +144,14 @@ class detectDrowsiness:
 			for face in range(len(face_array)):
 				predict = functions.try_performTest(self.model,self.trainingData,face_array[face],self.classifier)
 
-				print(predict)
+				#print(predict)
 				if(len(predict)) == 0:
 					print(" face Not Recognized")
 					#pass
 				else:
-					np.append(self.sleeping_students,predict)
+					#print("HELLO?", predict)
+					self.sleeping_students = np.append(self.sleeping_students,predict)
+					#print("HELLO?", self.sleeping_students)
 					self.sleeping_students = np.unique(self.sleeping_students)
 
 

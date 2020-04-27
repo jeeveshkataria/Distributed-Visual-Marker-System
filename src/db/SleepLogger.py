@@ -7,7 +7,7 @@ class DrowsyDetector:
     
     def markStudentSleepy(self,roll_list,course_id):
         date=datetime.now().strftime("%Y/%m/%d")
-        if(len(roll_dict)!=0):
+        if(len(roll_list)!=0):
             try:
                 mydb = MyDatabase()
                 conn = mydb.get_connection()
