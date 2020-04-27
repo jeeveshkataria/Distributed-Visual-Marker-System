@@ -95,10 +95,10 @@ class virtualAttendance:
             return False
     
     def markAttendance(self,predicts,courseID):
-        print("predicts",predicts)
-        print(type(predicts))
+        #print("predicts",predicts)
+        #print(type(predicts))
         for predict in predicts:
-            print("predict",type(predict),predict)
+            #print("predict",type(predict),predict)
             predict = int(predict)
             if(predict in self.studentID):
                 info_dict = {}
